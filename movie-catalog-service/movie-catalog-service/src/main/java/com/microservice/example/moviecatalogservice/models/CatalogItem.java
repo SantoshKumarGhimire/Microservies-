@@ -4,9 +4,9 @@ public class CatalogItem {
 
     private String name;
     private String description;
-    private String rating;
+    private int rating;
 
-    public CatalogItem(String name, String description, String rating) {
+    public CatalogItem(String name, String description, int rating) {
         this.name = name;
         this.description = description;
         this.rating = rating;
@@ -28,11 +28,11 @@ public class CatalogItem {
         this.description = description;
     }
 
-    public String getRating() {
+    public int getRating() {
         return rating;
     }
 
-    public void setRating(String rating) {
+    public void setRating(int rating) {
         this.rating = rating;
     }
 }
