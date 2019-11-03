@@ -1,9 +1,6 @@
 package com.microservice.example.moviecatalogservice.resources;
 
-import com.microservice.example.moviecatalogservice.models.CatalogItem;
-import com.microservice.example.moviecatalogservice.models.Movie;
-import com.microservice.example.moviecatalogservice.models.Rating;
-import com.microservice.example.moviecatalogservice.models.UserRating;
+import com.microservice.example.moviecatalogservice.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,9 +30,9 @@ public class MovieCatalogResource {
         UserRating ratings = restTemplate.getForObject("http://movie-rating-service/ratingsdata/users/"+userId,UserRating.class);
 
         return ratings.getRatingList().stream().map(rating -> {
-            Movie movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieId(), Movie.class);
+            MovieSummary movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieId(), MovieSummary.class);
 
-            return new CatalogItem(movie.getMovieName(), "abcd", rating.getRating());
+            return new CatalogItem(movie.getOriginal_title(), movie.getOverview(), rating.getRating());
         }).collect(Collectors.toList());
 
     }
