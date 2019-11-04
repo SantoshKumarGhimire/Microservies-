@@ -1,6 +1,8 @@
 package com.microservice.example.moviecatalogservice.resources;
 
 import com.microservice.example.moviecatalogservice.models.*;
+import com.microservice.example.moviecatalogservice.service.MovieSummaryService;
+import com.microservice.example.moviecatalogservice.service.UserRatingService;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,22 +19,17 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/catalog")
 public class MovieCatalogResource {
-    @Autowired
-    RestTemplate restTemplate;
 
-    @HystrixCommand(fallbackMethod = "getFallbackCatalogItem")
+    @Autowired
+    MovieSummaryService movieSummaryService;
+    @Autowired
+    UserRatingService userRatingService;
+
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCaltalogItems(@PathVariable("userId") String userId) {
-
-        UserRating ratings = restTemplate.getForObject("http://movie-rating-service/ratingsdata/users/"+userId,UserRating.class);
-        return ratings.getRatingList().stream().map(rating -> {
-            MovieSummary movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieId(), MovieSummary.class);
+        UserRating ratings = userRatingService.getUserRating(userId);
+        return ratings.getRatingList().stream().map(rating -> { MovieSummary movie = movieSummaryService.getMovieSummary(rating);
             return new CatalogItem(movie.getOriginal_title(), movie.getOverview(), rating.getRating());
         }).collect(Collectors.toList());
     }
-
-    public List<CatalogItem> getFallbackCatalogItem(@PathVariable("userId") String userId){
-        return Arrays.asList(new CatalogItem("no movie","...",0));
-    }
-
 }
